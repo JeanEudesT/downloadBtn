@@ -1,0 +1,16 @@
+{
+  "name": "extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "webpack": "^5.19.0",
+    "webpack-cli": "^4.4.0"
+  }
+}
