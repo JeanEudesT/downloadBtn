@@ -77,12 +77,6 @@ const querySelector = (query, timeout = 0) =>
   new Promise((resolve,) =>
     setTimeout(() => resolve(document.querySelector(query)), timeout));
  
-const addStyle = (() => {
-  const style = document.createElement('style');
-  document.head.append(style);
-  return (styleString) => style.textContent = styleString;
-})();
-
 const createDownloadButton = () => {
   const button = document.createElement('button');
   button.innerHTML = 'TELECHARGER';
@@ -91,7 +85,13 @@ const createDownloadButton = () => {
   return button;
 }
 
-(async () => {
+const process = async () => {
+  const addStyle = (() => {
+    const style = document.createElement('style');
+    document.head.append(style);
+    return (styleString) => style.textContent = styleString;
+  })();
+
   addStyle(STYLE);
   const buttonContainer = document.createElement('div');
   buttonContainer.className = 't-buttonContainer'
@@ -101,8 +101,17 @@ const createDownloadButton = () => {
 
   const topRowElement = await querySelector('div #top-row.ytd-video-secondary-info-renderer', 3000);
   topRowElement.appendChild(buttonContainer);
-})();
+}
+const addDownloadBtn = async () => {
+  const isAlreadyAdded = !!document.getElementsByClassName('t-downloadBtn').length;
+  if (!isAlreadyAdded && location.pathname === "/watch") {
+    await process();
+  }
+}
 
+window.addEventListener('yt-navigate-start', addDownloadBtn, true);
+
+addDownloadBtn();
 
 /*
 chrome.runtime.onMessage.addListener(function(message, sender){
