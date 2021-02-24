@@ -102,14 +102,16 @@ const process = async () => {
   const topRowElement = await querySelector('div #top-row.ytd-video-secondary-info-renderer', 3000);
   topRowElement.appendChild(buttonContainer);
 }
-const addDownloadBtn = async () => {
+const addDownloadBtn = async (event) => {
   const isAlreadyAdded = !!document.getElementsByClassName('t-downloadBtn').length;
-  if (!isAlreadyAdded && location.pathname === "/watch") {
+  const isWatchPage = event?.path[0].baseURI.includes("/watch") || location.pathname === "/watch";
+  console.log({ isAlreadyAdded, isWatchPage: isWatchPage, ytNavigateFinishEvent: event});
+  if (!isAlreadyAdded && isWatchPage) {
     await process();
   }
 }
 
-window.addEventListener('yt-navigate-start', addDownloadBtn, true);
+window.addEventListener('yt-navigate-finish', addDownloadBtn, true);
 
 addDownloadBtn();
 
