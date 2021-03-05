@@ -198,7 +198,10 @@ const addDownloadBtn = async (event) => {
   }
 }
 
-window.addEventListener('yt-navigate-finish', addDownloadBtn, true);
+const shouldAddButton = () => {
+  const buttonAlreadyExists = !!document.getElementsByClassName('t-downloadBtn').length;
+  return !buttonAlreadyExists;
+}
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
   console.log(changes, namespace);
@@ -210,5 +213,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       default:
         console.error('This key ', key, ' does not exist');
     }
+  }
+})
+
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+  switch(request.action) {
+    case 'ADD_BUTTON':
+      if (!shouldAddButton()) break;
+      await addDownloadBtn();
+      break;
   }
 })
