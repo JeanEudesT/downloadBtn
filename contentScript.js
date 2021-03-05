@@ -88,6 +88,18 @@ const STYLE = `
 }
 `;
 
+const CHROME_STORAGE = {
+  SETTING_KEY: 'videos-download-setting'
+}
+const SETTINGS = {};
+
+chrome.storage.sync.get(CHROME_STORAGE.SETTING_KEY, (obj) => {
+  console.log(obj);
+  updateSettings(obj[CHROME_STORAGE.SETTING_KEY]);
+});
+
+const updateSettings = (settings) => Object.assign(SETTINGS, settings);
+
 const downloadVideo = async () => {
   await startLoader();
   post();
@@ -107,7 +119,7 @@ const stopLoader = async (errors) => {
   const downloadButton = createDownloadButton();
   buttonContainer.appendChild(downloadButton);
   const isGreenFeedback = !errors ? true : false;
-  await pushFeedback();
+  await pushFeedback(isGreenFeedback);
 }
 
 const pushFeedback = async (isGreenFeedback) => {
@@ -134,7 +146,7 @@ const post = () => {
         stopLoader(true);
     }
   };
-  req.open("POST", 'PUT/YOUR/API/HERE/TO/DOWNLOAD/THE/VIDEO', true);
+  req.open("POST", 'https://'+SETTINGS.instance, true);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   console.log(JSON.stringify({url: window.location.href}));
   req.send(JSON.stringify({url: window.location.href}));
@@ -188,7 +200,15 @@ const addDownloadBtn = async (event) => {
 
 window.addEventListener('yt-navigate-finish', addDownloadBtn, true);
 
-/*
-chrome.runtime.onMessage.addListener(function(message, sender){
-  console.log(message);
-})*/
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  console.log(changes, namespace);
+  for(let key in changes){
+    switch(key){
+      case CHROME_STORAGE.SETTING_KEY:
+        updateSettings(changes[key].newValue);
+        break;
+      default:
+        console.error('This key ', key, ' does not exist');
+    }
+  }
+})
