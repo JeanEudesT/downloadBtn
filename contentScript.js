@@ -37,6 +37,48 @@ const STYLE = `
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.notification {
+  padding: 5px;
+  margin: 15px;
+  height: 80px;
+  width: 230px;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background-color: #009D0D;
+  transform: translateX(260px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.animation {
+  animation: moveOpen 3s;
+}
+
+@keyframes moveOpen {
+  from {
+    -webkit-transform: translateX(290px);
+    visibility: visible;
+  }
+
+  25% {
+    -webkit-transform: translateX(0));
+  }
+
+  75% {
+    -webkit-transform: translateX(0);
+  }
+
+  to {
+    -webkit-transform: translateX(290px);
+  }
+}
 `;
 
 const downloadVideo = async () => {
@@ -57,6 +99,11 @@ const stopLoader = async () => {
   buttonContainer.removeChild(buttonContainer.firstChild)
   const downloadButton = createDownloadButton();
   buttonContainer.appendChild(downloadButton);
+  const bodyContainer = await querySelector('body', 0);
+  const notification = document.createElement('div');
+  notification.className = "notification animation";
+  notification.innerHTML="Telechargement terminé :)";
+  bodyContainer.appendChild(notification);
 }
 
 const post = () => {
