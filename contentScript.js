@@ -48,7 +48,6 @@ const STYLE = `
   position: fixed;
   bottom: 0;
   right: 0;
-  background-color: #009D0D;
   transform: translateX(260px);
   display: flex;
   flex-direction: column;
@@ -79,6 +78,14 @@ const STYLE = `
     -webkit-transform: translateX(290px);
   }
 }
+
+.t-validate {
+  background-color: #009D0D;
+}
+
+.t-error {
+  background-color: #C00000;
+}
 `;
 
 const downloadVideo = async () => {
@@ -94,24 +101,37 @@ const startLoader = async () => {
   buttonContainer.appendChild(loaderElement);
 }
 
-const stopLoader = async () => {
+const stopLoader = async (errors) => {
   const buttonContainer = await querySelector('.t-buttonContainer', 0);
   buttonContainer.removeChild(buttonContainer.firstChild)
   const downloadButton = createDownloadButton();
   buttonContainer.appendChild(downloadButton);
+  const isGreenFeedback = !errors ? true : false;
+  await pushFeedback();
+}
+
+const pushFeedback = async (isGreenFeedback) => {
   const bodyContainer = await querySelector('body', 0);
-  const notification = document.createElement('div');
-  notification.className = "notification animation";
-  notification.innerHTML="Telechargement terminé :)";
+  const notification = createFeedbackNotification(isGreenFeedback);
   bodyContainer.appendChild(notification);
 }
 
 const post = () => {
   const req = new XMLHttpRequest();
   req.onreadystatechange = function(a) {
-    if (this.readyState == 4 && this.status == 200) {
-      console.log("DONE", req.response);
-      stopLoader();
+
+    if (this.readyState !== 4) return;
+    switch(this.status){
+      case 200:
+        console.log('DONE', req.response);
+        stopLoader(false);
+        break;
+      case 400:
+        stopLoader(true);
+        break;
+      default:
+        console.log('DEFAULT SWITCH CASE', req.response);
+        stopLoader(true);
     }
   };
   req.open("POST", 'PUT/YOUR/API/HERE/TO/DOWNLOAD/THE/VIDEO', true);
@@ -123,7 +143,15 @@ const post = () => {
 const querySelector = (query, timeout = 0) =>
   new Promise((resolve,) =>
     setTimeout(() => resolve(document.querySelector(query)), timeout));
- 
+
+const createFeedbackNotification = (isGreenFeedback) => {
+  const backgroundClass = isGreenFeedback ? "t-validate" : "t-error";
+  const notification = document.createElement('div');
+  notification.className = "notification animation " + backgroundClass;
+  notification.innerHTML= isGreenFeedback ? "Telechargement terminé :)" : "Une erreur est survenue, veuillez contacter le dev";
+  return notification;
+};
+
 const createDownloadButton = () => {
   const button = document.createElement('button');
   button.innerHTML = 'TELECHARGER';
@@ -159,8 +187,6 @@ const addDownloadBtn = async (event) => {
 }
 
 window.addEventListener('yt-navigate-finish', addDownloadBtn, true);
-
-addDownloadBtn();
 
 /*
 chrome.runtime.onMessage.addListener(function(message, sender){
