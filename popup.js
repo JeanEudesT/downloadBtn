@@ -9,10 +9,10 @@ const sendToContentScript = (payload) => {
 }
 
 const getDetails = () => {
-    const folder = document.getElementById('folderDestination').value
+    const destination = document.getElementById('folderDestination').value
     const instance = document.getElementById('instanceServer').value
-    console.log(instance, folder);
-    return { folder, instance };
+    console.log(instance, destination);
+    return { destination, instance };
 }
 
 const updateSettings = () => {
@@ -27,8 +27,8 @@ const updateSettings = () => {
     const folderInput = document.getElementById('folderDestination');
     const instanceInput = document.getElementById('instanceServer');
 
-    instanceInput.innerHTML = chrome.storage.sync.get(CHROME_STORAGE.SETTING_KEY, (obj) => {
-        folderInput.value = obj[CHROME_STORAGE.SETTING_KEY].folder;
+    chrome.storage.sync.get(CHROME_STORAGE.SETTING_KEY, (obj) => {
+        folderInput.value = obj[CHROME_STORAGE.SETTING_KEY].destination;
         instanceInput.value = obj[CHROME_STORAGE.SETTING_KEY].instance;
     })
 })();

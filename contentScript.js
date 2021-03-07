@@ -24,7 +24,7 @@ const STYLE = `
   padding: 6px;
 }
 
-.loader {
+.t-loader {
   border: 8px solid #f3f3f3;
   border-radius: 50%;
   border-top: 8px solid #C00000;
@@ -109,7 +109,7 @@ const startLoader = async () => {
   const buttonContainer = await querySelector('.t-buttonContainer', 0);
   buttonContainer.removeChild(buttonContainer.firstChild);
   const loaderElement = document.createElement('div');
-  loaderElement.className = 'loader';
+  loaderElement.className = 't-loader';
   buttonContainer.appendChild(loaderElement);
 }
 
@@ -149,7 +149,8 @@ const post = () => {
   req.open("POST", 'https://'+SETTINGS.instance, true);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   console.log(JSON.stringify({url: window.location.href}));
-  req.send(JSON.stringify({url: window.location.href}));
+  console.log(SETTINGS.destination || "");
+  req.send(JSON.stringify({url: window.location.href, destination: SETTINGS.destination || "default"}));
 }
 
 const querySelector = (query, timeout = 0) =>
@@ -172,7 +173,7 @@ const createDownloadButton = () => {
   return button;
 }
 
-const process = async () => {
+const addDownloadBtn = async () => {
   const addStyle = (() => {
     const style = document.createElement('style');
     document.head.append(style);
@@ -186,21 +187,14 @@ const process = async () => {
   const downloadButton = createDownloadButton();
   buttonContainer.appendChild(downloadButton);
 
-  const topRowElement = await querySelector('div #top-row.ytd-video-secondary-info-renderer', 3000);
+  const topRowElement = await querySelector('div #top-row.ytd-video-secondary-info-renderer', 1000);
   topRowElement.appendChild(buttonContainer);
-}
-const addDownloadBtn = async (event) => {
-  const isAlreadyAdded = !!document.getElementsByClassName('t-downloadBtn').length;
-  const isWatchPage = event?.path[0].baseURI.includes("/watch") || location.pathname === "/watch";
-  console.log({ isAlreadyAdded, isWatchPage: isWatchPage, ytNavigateFinishEvent: event});
-  if (!isAlreadyAdded && isWatchPage) {
-    await process();
-  }
 }
 
 const shouldAddButton = () => {
   const buttonAlreadyExists = !!document.getElementsByClassName('t-downloadBtn').length;
-  return !buttonAlreadyExists;
+  const loader = !!document.getElementsByClassName('t-loader').length;
+  return !buttonAlreadyExists && !loader;
 }
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
